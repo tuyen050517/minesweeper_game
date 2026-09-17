@@ -1,0 +1,403 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(
+    circle at top,
+    #263454 0%,
+    #111827 45%,
+    #070b12 100%
+  );
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 35px 15px;
+}
+
+/* =========================
+   KHUNG GAME
+========================= */
+
+.game-container {
+  width: 100%;
+  max-width: 620px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 42px;
+  letter-spacing: 3px;
+  color: #f8fafc;
+
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 30px rgba(239, 68, 68, 0.15);
+}
+
+.subtitle {
+  margin-top: 5px;
+
+  color: #ef4444;
+  font-weight: bold;
+  letter-spacing: 8px;
+  font-size: 14px;
+}
+
+/* =========================
+   THÔNG TIN GAME
+========================= */
+
+.game-info {
+  margin-top: 25px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.info-box {
+  background: rgba(15, 23, 42, 0.85);
+
+  border: 1px solid #334155;
+  border-radius: 12px;
+
+  padding: 12px 8px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.info-box span {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.info-box strong {
+  color: #f8fafc;
+  font-size: 24px;
+}
+
+/* =========================
+   LEVEL
+========================= */
+
+.level-info {
+  margin: 16px 0;
+
+  background: #111827;
+
+  border: 1px solid #334155;
+  border-radius: 10px;
+
+  padding: 10px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.level-info span:first-child {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+#level-number {
+  color: #facc15;
+  font-size: 20px;
+}
+
+#level-name {
+  color: #22c55e;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   BÀN MINESWEEPER
+========================= */
+
+#board {
+  margin: 0 auto;
+
+  display: grid;
+
+  width: fit-content;
+
+  background: #020617;
+
+  border: 5px solid #1e293b;
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(59, 130, 246, 0.08);
+}
+
+/* =========================
+   Ô
+========================= */
+
+.cell {
+  width: 48px;
+  height: 48px;
+
+  border: 1px solid #334155;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  transition:
+    transform 0.08s,
+    background 0.15s;
+}
+
+.cell:hover:not(.opened) {
+  background: #64748b;
+  transform: scale(0.94);
+}
+
+.cell.opened {
+  background-image: none !important;
+  background-color: #dce3eb;
+  border-color: #b8c1cc;
+  cursor: default;
+}
+
+/* =========================
+   SỐ MINESWEEPER
+========================= */
+
+.cell[data-number="1"] {
+  color: #2563eb;
+}
+
+.cell[data-number="2"] {
+  color: #16a34a;
+}
+
+.cell[data-number="3"] {
+  color: #dc2626;
+}
+
+.cell[data-number="4"] {
+  color: #6d28d9;
+}
+
+.cell[data-number="5"] {
+  color: #991b1b;
+}
+
+.cell[data-number="6"] {
+  color: #0891b2;
+}
+
+.cell[data-number="7"] {
+  color: #111827;
+}
+
+.cell[data-number="8"] {
+  color: #475569;
+}
+
+/* =========================
+   CỜ
+========================= */
+
+.cell.flagged {
+  background: linear-gradient(145deg, #4b5563, #273244);
+}
+
+/* =========================
+   MÌN
+========================= */
+
+.cell.mine {
+  background: #ef4444;
+  color: white;
+
+  animation: mineExplosion 0.35s ease;
+}
+
+@keyframes mineExplosion {
+  0% {
+    transform: scale(0.5);
+  }
+
+  60% {
+    transform: scale(1.25);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* =========================
+   NÚT
+========================= */
+
+.controls {
+  margin-top: 20px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+
+  padding: 13px 25px;
+
+  background: #2563eb;
+  color: white;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #3b82f6;
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* =========================
+   HƯỚNG DẪN
+========================= */
+
+.instructions {
+  margin-top: 18px;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+
+  line-height: 1.8;
+}
+
+/* =========================
+   MODAL THẮNG / THUA
+========================= */
+
+.modal {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(2, 6, 23, 0.82);
+
+  backdrop-filter: blur(7px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 100;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: min(90%, 400px);
+
+  padding: 35px;
+
+  background: #111827;
+
+  border: 1px solid #475569;
+  border-radius: 18px;
+
+  text-align: center;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+
+  animation: modalShow 0.3s ease;
+}
+
+@keyframes modalShow {
+  from {
+    transform: scale(0.75);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+#modal-icon {
+  font-size: 65px;
+}
+
+#modal-title {
+  margin-top: 10px;
+
+  font-size: 34px;
+}
+
+#modal-message {
+  margin: 15px 0 22px;
+
+  color: #cbd5e1;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 550px) {
+  body {
+    padding: 20px 8px;
+  }
+
+  header h1 {
+    font-size: 30px;
+  }
+
+  .subtitle {
+    letter-spacing: 5px;
+  }
+
+  .cell {
+    width: 38px;
+    height: 38px;
+
+    font-size: 18px;
+  }
+
+  .info-box strong {
+    font-size: 19px;
+  }
+}

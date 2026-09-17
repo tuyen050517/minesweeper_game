@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Minesweeper: Death Field</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="game-container">
+      <header>
+        <h1>💣 MINESWEEPER</h1>
+        <p class="subtitle">DEATH FIELD</p>
+      </header>
+
+      <div class="game-info">
+        <div class="info-box">
+          <span>💣 Mìn</span>
+          <strong id="mine-count">10</strong>
+        </div>
+
+        <div class="info-box">
+          <span>🚩 Cờ</span>
+          <strong id="flag-count">0</strong>
+        </div>
+
+        <div class="info-box">
+          <span>⏱ Thời gian</span>
+          <strong id="timer">0</strong>
+        </div>
+      </div>
+
+      <div class="level-info">
+        <span>MÀN</span>
+        <strong id="level-number">1</strong>
+        <span id="level-name">TÂN BINH</span>
+      </div>
+
+      <!-- Bàn Minesweeper -->
+      <div id="board"></div>
+
+      <div class="controls">
+        <button id="restart-btn">🔄 CHƠI LẠI</button>
+      </div>
+
+      <div class="instructions">
+        <p>🖱️ Chuột trái: mở ô</p>
+        <p>🚩 Chuột phải: cắm / gỡ cờ</p>
+      </div>
+    </div>
+
+    <!-- Màn hình thắng / thua -->
+    <div id="game-modal" class="modal hidden">
+      <div class="modal-content">
+        <div id="modal-icon">💥</div>
+
+        <h2 id="modal-title">BOOM!</h2>
+
+        <p id="modal-message">Bạn đã giẫm phải mìn!</p>
+
+        <button id="modal-button">THỬ LẠI</button>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>
