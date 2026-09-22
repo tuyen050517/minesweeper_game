@@ -1,15 +1,120 @@
-// ==========================================
+// ============================================================
 // MINESWEEPER: DEATH FIELD
-// LEVEL 1
-// ==========================================
-
-const ROWS = 9;
-const COLS = 9;
-const TOTAL_MINES = 10;
+// CAMPAIGN 10 LEVELS
+// ============================================================
 
 const PUZZLE_IMAGE = "img/tan.jpg";
 
+const LEVELS = [
+  {
+    level: 1,
+    name: "TÂN BINH",
+    rows: 9,
+    cols: 9,
+    mines: 10,
+    stars: 1,
+    target3: 45,
+    target2: 90,
+  },
+  {
+    level: 2,
+    name: "BÃI MÌN",
+    rows: 10,
+    cols: 10,
+    mines: 15,
+    stars: 1,
+    target3: 65,
+    target2: 120,
+  },
+  {
+    level: 3,
+    name: "NGUY HIỂM",
+    rows: 11,
+    cols: 11,
+    mines: 22,
+    stars: 2,
+    target3: 85,
+    target2: 150,
+  },
+  {
+    level: 4,
+    name: "MÊ CUNG",
+    rows: 12,
+    cols: 12,
+    mines: 30,
+    stars: 2,
+    target3: 110,
+    target2: 190,
+  },
+  {
+    level: 5,
+    name: "ÁC MỘNG",
+    rows: 13,
+    cols: 13,
+    mines: 40,
+    stars: 3,
+    target3: 140,
+    target2: 230,
+  },
+  {
+    level: 6,
+    name: "TỬ ĐỊA",
+    rows: 14,
+    cols: 14,
+    mines: 50,
+    stars: 3,
+    target3: 175,
+    target2: 280,
+  },
+  {
+    level: 7,
+    name: "ĐỊA NGỤC",
+    rows: 15,
+    cols: 15,
+    mines: 62,
+    stars: 4,
+    target3: 210,
+    target2: 330,
+  },
+  {
+    level: 8,
+    name: "TUYỆT VỌNG",
+    rows: 16,
+    cols: 16,
+    mines: 75,
+    stars: 4,
+    target3: 250,
+    target2: 390,
+  },
+  {
+    level: 9,
+    name: "DEATH FIELD",
+    rows: 18,
+    cols: 18,
+    mines: 95,
+    stars: 5,
+    target3: 310,
+    target2: 470,
+  },
+  {
+    level: 10,
+    name: "FINAL BOSS",
+    rows: 20,
+    cols: 20,
+    mines: 125,
+    stars: 5,
+    target3: 400,
+    target2: 600,
+  },
+];
+
+const STORAGE_KEY = "deathFieldProgressV1";
+
+let currentLevel = 1;
+let unlockedLevel = 1;
+
 let board = [];
+
 let gameOver = false;
 let gameWon = false;
 let firstClick = true;
@@ -18,33 +123,154 @@ let flags = 0;
 let seconds = 0;
 let timerInterval = null;
 
-// ==========================================
-// LẤY CÁC PHẦN TỬ HTML
-// ==========================================
+let bestTimes = {};
+let levelStars = {};
+
+// ============================================================
+// HTML
+// ============================================================
 
 const boardElement = document.getElementById("board");
+
 const mineCountElement = document.getElementById("mine-count");
 const flagCountElement = document.getElementById("flag-count");
 const timerElement = document.getElementById("timer");
+const bestTimeElement = document.getElementById("best-time");
+
+const levelNumberElement = document.getElementById("level-number");
+const levelNameElement = document.getElementById("level-name");
+const levelDifficultyElement = document.getElementById("level-difficulty");
 
 const restartButton = document.getElementById("restart-btn");
 
+const toggleLevelsButton = document.getElementById("toggle-levels-btn");
+
+const levelsButton = document.getElementById("levels-btn");
+
+const levelSelector = document.getElementById("level-selector");
+
+const levelButtons = document.querySelectorAll(".level-btn");
+
+// MODAL
+
 const modal = document.getElementById("game-modal");
+
 const modalIcon = document.getElementById("modal-icon");
+
 const modalTitle = document.getElementById("modal-title");
+
 const modalMessage = document.getElementById("modal-message");
+
+const modalStars = document.getElementById("modal-stars");
+
+const modalStats = document.getElementById("modal-stats");
+
+const resultTime = document.getElementById("result-time");
+
+const resultBest = document.getElementById("result-best");
+
 const modalButton = document.getElementById("modal-button");
 
-// ==========================================
-// TẠO GAME
-// ==========================================
+const nextLevelButton = document.getElementById("next-level-btn");
+
+const modalLevelsButton = document.getElementById("modal-levels-btn");
+
+// ============================================================
+// PROGRESS
+// ============================================================
+
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) {
+      return;
+    }
+
+    const data = JSON.parse(saved);
+
+    unlockedLevel = Math.min(10, Math.max(1, Number(data.unlockedLevel) || 1));
+
+    bestTimes = data.bestTimes || {};
+
+    levelStars = data.levelStars || {};
+  } catch (error) {
+    console.warn("Không đọc được tiến độ:", error);
+
+    unlockedLevel = 1;
+    bestTimes = {};
+    levelStars = {};
+  }
+}
+
+function saveProgress() {
+  const data = {
+    unlockedLevel,
+    bestTimes,
+    levelStars,
+  };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ============================================================
+// LEVEL HELPERS
+// ============================================================
+
+function getLevelData() {
+  return LEVELS[currentLevel - 1];
+}
+
+function getDifficultyText(levelData) {
+  return "⭐".repeat(levelData.stars);
+}
+
+// ============================================================
+// CELL SIZE
+// ============================================================
+
+function calculateCellSize() {
+  const level = getLevelData();
+
+  /*
+       PC:
+       Board nhỏ giữ 48px như game cũ.
+
+       Board lớn tự thu nhỏ để không thành
+       một bảng khổng lồ.
+    */
+
+  const availableWidth = Math.min(window.innerWidth - 30, 900);
+
+  const maxSizeByScreen = Math.floor((availableWidth - 12) / level.cols);
+
+  let size = Math.min(48, maxSizeByScreen);
+
+  /*
+       Không nhỏ quá mức này.
+       Nếu màn hình quá nhỏ, wrapper sẽ cuộn.
+    */
+
+  size = Math.max(26, size);
+
+  return size;
+}
+
+// ============================================================
+// CREATE GAME
+// ============================================================
 
 function createGame() {
-  // Dừng timer cũ
   clearInterval(timerInterval);
+
   timerInterval = null;
 
-  // Reset dữ liệu
+  const level = getLevelData();
+
+  const ROWS = level.rows;
+
+  const COLS = level.cols;
+
   board = [];
 
   gameOver = false;
@@ -54,29 +280,67 @@ function createGame() {
   flags = 0;
   seconds = 0;
 
-  // Reset giao diện
-  mineCountElement.textContent = TOTAL_MINES;
-  flagCountElement.textContent = flags;
-  timerElement.textContent = seconds;
+  // UI
+
+  mineCountElement.textContent = level.mines;
+
+  flagCountElement.textContent = 0;
+
+  timerElement.textContent = 0;
+
+  levelNumberElement.textContent = level.level;
+
+  levelNameElement.textContent = level.name;
+
+  levelDifficultyElement.textContent = getDifficultyText(level);
+
+  const best = bestTimes[currentLevel];
+
+  bestTimeElement.textContent = best ? `${best}s` : "--";
+
+  // Modal reset
 
   modal.classList.add("hidden");
 
+  modalStars.classList.add("hidden");
+
+  modalStats.classList.add("hidden");
+
+  nextLevelButton.classList.add("hidden");
+
+  // Board reset
+
   boardElement.innerHTML = "";
 
-  // Tạo grid 9 x 9
-  boardElement.style.gridTemplateColumns = `repeat(${COLS}, 48px)`;
+  const cellSize = calculateCellSize();
 
-  // Tạo dữ liệu các ô
+  document.documentElement.style.setProperty("--cell-size", `${cellSize}px`);
+
+  boardElement.style.gridTemplateColumns = `repeat(${COLS}, ${cellSize}px)`;
+
+  /*
+       QUAN TRỌNG:
+       Đây là kích thước toàn bộ ảnh ghép.
+    */
+
+  const imageWidth = COLS * cellSize;
+
+  const imageHeight = ROWS * cellSize;
+
+  // DATA
+
   for (let row = 0; row < ROWS; row++) {
     const boardRow = [];
 
     for (let col = 0; col < COLS; col++) {
       boardRow.push({
-        row: row,
-        col: col,
+        row,
+        col,
 
         mine: false,
+
         opened: false,
+
         flagged: false,
 
         number: 0,
@@ -88,7 +352,8 @@ function createGame() {
     board.push(boardRow);
   }
 
-  // Tạo HTML cho từng ô
+  // HTML CELLS
+
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
       const cell = board[row][col];
@@ -97,23 +362,25 @@ function createGame() {
 
       div.classList.add("cell");
 
+      // ============================
+      // ẢNH GHÉP
+      // ============================
+
       div.style.backgroundImage = `url("${PUZZLE_IMAGE}")`;
-      div.style.backgroundSize = `${COLS * 48}px ${ROWS * 48}px`;
-      div.style.backgroundPosition = `-${col * 48}px -${row * 48}px`;
+
+      div.style.backgroundSize = `${imageWidth}px ${imageHeight}px`;
+
+      div.style.backgroundPosition = `-${col * cellSize}px -${row * cellSize}px`;
 
       cell.element = div;
 
-      // --------------------------
-      // CHUỘT TRÁI
-      // --------------------------
+      // CLICK TRÁI
 
       div.addEventListener("click", function () {
-        openCell(row, col);
+        handleLeftClick(row, col);
       });
 
-      // --------------------------
-      // CHUỘT PHẢI
-      // --------------------------
+      // CLICK PHẢI
 
       div.addEventListener("contextmenu", function (event) {
         event.preventDefault();
@@ -124,21 +391,59 @@ function createGame() {
       boardElement.appendChild(div);
     }
   }
+
+  updateLevelSelector();
 }
 
-// ==========================================
-// TẠO MÌN
-// ==========================================
+// ============================================================
+// LEFT CLICK
+// ============================================================
+
+function handleLeftClick(row, col) {
+  if (gameOver || gameWon) {
+    return;
+  }
+
+  const cell = board[row][col];
+
+  /*
+       Nếu click một ô số đã mở,
+       thử CHORD.
+    */
+
+  if (cell.opened) {
+    if (cell.number > 0) {
+      chordOpen(row, col);
+    }
+
+    return;
+  }
+
+  openCell(row, col);
+}
+
+// ============================================================
+// GENERATE MINES
+// ============================================================
 
 function generateMines(safeRow, safeCol) {
+  const level = getLevelData();
+
+  const ROWS = level.rows;
+
+  const COLS = level.cols;
+
   const forbidden = new Set();
 
-  // Click đầu tiên + 8 ô xung quanh
-  // sẽ không có mìn
+  /*
+       Click đầu + 8 ô xung quanh
+       luôn an toàn.
+    */
 
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       const row = safeRow + dr;
+
       const col = safeCol + dc;
 
       if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
@@ -153,18 +458,16 @@ function generateMines(safeRow, safeCol) {
     for (let col = 0; col < COLS; col++) {
       if (!forbidden.has(`${row},${col}`)) {
         possiblePositions.push({
-          row: row,
-          col: col,
+          row,
+          col,
         });
       }
     }
   }
 
-  // Trộn vị trí
   shuffleArray(possiblePositions);
 
-  // Đặt mìn
-  for (let i = 0; i < TOTAL_MINES; i++) {
+  for (let i = 0; i < level.mines; i++) {
     const position = possiblePositions[i];
 
     board[position.row][position.col].mine = true;
@@ -173,9 +476,9 @@ function generateMines(safeRow, safeCol) {
   calculateNumbers();
 }
 
-// ==========================================
-// TRỘN ARRAY
-// ==========================================
+// ============================================================
+// SHUFFLE
+// ============================================================
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -185,13 +488,15 @@ function shuffleArray(array) {
   }
 }
 
-// ==========================================
-// TÍNH SỐ MÌN XUNG QUANH
-// ==========================================
+// ============================================================
+// CALCULATE NUMBERS
+// ============================================================
 
 function calculateNumbers() {
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  const level = getLevelData();
+
+  for (let row = 0; row < level.rows; row++) {
+    for (let col = 0; col < level.cols; col++) {
       const cell = board[row][col];
 
       if (cell.mine) {
@@ -207,6 +512,7 @@ function calculateNumbers() {
           }
 
           const newRow = row + dr;
+
           const newCol = col + dc;
 
           if (isInsideBoard(newRow, newCol) && board[newRow][newCol].mine) {
@@ -220,38 +526,32 @@ function calculateNumbers() {
   }
 }
 
-// ==========================================
-// KIỂM TRA Ô CÓ NẰM TRONG BOARD
-// ==========================================
+// ============================================================
+// INSIDE BOARD
+// ============================================================
 
 function isInsideBoard(row, col) {
-  return row >= 0 && row < ROWS && col >= 0 && col < COLS;
+  const level = getLevelData();
+
+  return row >= 0 && row < level.rows && col >= 0 && col < level.cols;
 }
 
-// ==========================================
-// MỞ Ô
-// ==========================================
+// ============================================================
+// OPEN CELL
+// ============================================================
 
 function openCell(row, col) {
-  if (gameOver || gameWon) {
+  if (gameOver || gameWon || !isInsideBoard(row, col)) {
     return;
   }
 
   const cell = board[row][col];
 
-  // Không mở ô đã cắm cờ
-  if (cell.flagged) {
+  if (cell.flagged || cell.opened) {
     return;
   }
 
-  // Không mở lại ô đã mở
-  if (cell.opened) {
-    return;
-  }
-
-  // ======================================
-  // CLICK ĐẦU TIÊN
-  // ======================================
+  // FIRST CLICK
 
   if (firstClick) {
     generateMines(row, col);
@@ -261,9 +561,7 @@ function openCell(row, col) {
     startTimer();
   }
 
-  // ======================================
-  // DÍNH MÌN
-  // ======================================
+  // MINE
 
   if (cell.mine) {
     cell.opened = true;
@@ -277,18 +575,14 @@ function openCell(row, col) {
     return;
   }
 
-  // ======================================
-  // MỞ Ô AN TOÀN
-  // ======================================
-
   floodOpen(row, col);
 
   checkWin();
 }
 
-// ==========================================
-// MỞ LAN Ô TRỐNG
-// ==========================================
+// ============================================================
+// FLOOD OPEN
+// ============================================================
 
 function floodOpen(row, col) {
   if (!isInsideBoard(row, col)) {
@@ -301,12 +595,10 @@ function floodOpen(row, col) {
     return;
   }
 
-  // Đánh dấu đã mở
   cell.opened = true;
 
   cell.element.classList.add("opened");
 
-  // Nếu có số
   if (cell.number > 0) {
     cell.element.textContent = cell.number;
 
@@ -315,7 +607,6 @@ function floodOpen(row, col) {
     return;
   }
 
-  // Nếu bằng 0 thì mở lan
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
       if (dr === 0 && dc === 0) {
@@ -327,24 +618,107 @@ function floodOpen(row, col) {
   }
 }
 
-// ==========================================
-// CẮM / GỠ CỜ
-// ==========================================
+// ============================================================
+// CHORD OPEN
+//
+// Click vào số đã mở.
+// Nếu số cờ xung quanh = con số,
+// tự mở những ô còn lại.
+// ============================================================
+
+function chordOpen(row, col) {
+  if (gameOver || gameWon || firstClick) {
+    return;
+  }
+
+  const center = board[row][col];
+
+  if (!center.opened || center.number <= 0) {
+    return;
+  }
+
+  let nearbyFlags = 0;
+
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) {
+        continue;
+      }
+
+      const nr = row + dr;
+
+      const nc = col + dc;
+
+      if (isInsideBoard(nr, nc) && board[nr][nc].flagged) {
+        nearbyFlags++;
+      }
+    }
+  }
+
+  if (nearbyFlags !== center.number) {
+    return;
+  }
+
+  /*
+       Nếu người chơi cắm cờ sai,
+       chord có thể mở trúng mìn.
+    */
+
+  for (let dr = -1; dr <= 1; dr++) {
+    for (let dc = -1; dc <= 1; dc++) {
+      if (dr === 0 && dc === 0) {
+        continue;
+      }
+
+      const nr = row + dr;
+
+      const nc = col + dc;
+
+      if (!isInsideBoard(nr, nc)) {
+        continue;
+      }
+
+      const cell = board[nr][nc];
+
+      if (cell.opened || cell.flagged) {
+        continue;
+      }
+
+      if (cell.mine) {
+        cell.opened = true;
+
+        cell.element.classList.add("opened", "mine");
+
+        cell.element.textContent = "💣";
+
+        loseGame();
+
+        return;
+      }
+
+      floodOpen(nr, nc);
+    }
+  }
+
+  checkWin();
+}
+
+// ============================================================
+// FLAG
+// ============================================================
 
 function toggleFlag(row, col) {
   if (gameOver || gameWon || firstClick) {
     return;
   }
 
+  const level = getLevelData();
+
   const cell = board[row][col];
 
   if (cell.opened) {
     return;
   }
-
-  // ------------------------------
-  // GỠ CỜ
-  // ------------------------------
 
   if (cell.flagged) {
     cell.flagged = false;
@@ -354,14 +728,8 @@ function toggleFlag(row, col) {
     cell.element.textContent = "";
 
     cell.element.classList.remove("flagged");
-  }
-
-  // ------------------------------
-  // CẮM CỜ
-  // ------------------------------
-  else {
-    // Không cho cắm quá số mìn
-    if (flags >= TOTAL_MINES) {
+  } else {
+    if (flags >= level.mines) {
       return;
     }
 
@@ -377,9 +745,9 @@ function toggleFlag(row, col) {
   flagCountElement.textContent = flags;
 }
 
-// ==========================================
+// ============================================================
 // TIMER
-// ==========================================
+// ============================================================
 
 function startTimer() {
   clearInterval(timerInterval);
@@ -391,9 +759,9 @@ function startTimer() {
   }, 1000);
 }
 
-// ==========================================
-// THUA
-// ==========================================
+// ============================================================
+// LOSE
+// ============================================================
 
 function loseGame() {
   gameOver = true;
@@ -402,27 +770,34 @@ function loseGame() {
 
   revealAllMines();
 
-  // Hiện modal sau một chút
   setTimeout(function () {
     modalIcon.textContent = "💥";
 
     modalTitle.textContent = "BOOM!";
 
-    modalMessage.textContent = `Bạn sống được ${seconds} giây. Thử lại nào!`;
+    modalStars.classList.add("hidden");
+
+    modalStats.classList.add("hidden");
+
+    modalMessage.textContent = `Bạn sống được ${seconds} giây ở màn ${currentLevel}.`;
 
     modalButton.textContent = "🔄 THỬ LẠI";
 
+    nextLevelButton.classList.add("hidden");
+
     modal.classList.remove("hidden");
-  }, 500);
+  }, 450);
 }
 
-// ==========================================
-// HIỆN TẤT CẢ MÌN
-// ==========================================
+// ============================================================
+// REVEAL MINES
+// ============================================================
 
 function revealAllMines() {
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  const level = getLevelData();
+
+  for (let row = 0; row < level.rows; row++) {
+    for (let col = 0; col < level.cols; col++) {
       const cell = board[row][col];
 
       if (cell.mine) {
@@ -434,17 +809,19 @@ function revealAllMines() {
   }
 }
 
-// ==========================================
-// KIỂM TRA THẮNG
-// ==========================================
+// ============================================================
+// CHECK WIN
+// ============================================================
 
 function checkWin() {
+  const level = getLevelData();
+
   let openedSafeCells = 0;
 
-  const totalSafeCells = ROWS * COLS - TOTAL_MINES;
+  const totalSafeCells = level.rows * level.cols - level.mines;
 
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  for (let row = 0; row < level.rows; row++) {
+    for (let col = 0; col < level.cols; col++) {
       const cell = board[row][col];
 
       if (!cell.mine && cell.opened) {
@@ -458,18 +835,43 @@ function checkWin() {
   }
 }
 
-// ==========================================
-// THẮNG
-// ==========================================
+// ============================================================
+// STAR RATING
+// ============================================================
+
+function calculateStars() {
+  const level = getLevelData();
+
+  if (seconds <= level.target3) {
+    return 3;
+  }
+
+  if (seconds <= level.target2) {
+    return 2;
+  }
+
+  return 1;
+}
+
+// ============================================================
+// WIN
+// ============================================================
 
 function winGame() {
+  if (gameWon) {
+    return;
+  }
+
   gameWon = true;
 
   clearInterval(timerInterval);
 
-  // Cắm cờ tự động vào tất cả mìn
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  const level = getLevelData();
+
+  // AUTO FLAG MINES
+
+  for (let row = 0; row < level.rows; row++) {
+    for (let col = 0; col < level.cols; col++) {
       const cell = board[row][col];
 
       if (cell.mine) {
@@ -482,41 +884,219 @@ function winGame() {
     }
   }
 
-  flags = TOTAL_MINES;
+  flags = level.mines;
 
   flagCountElement.textContent = flags;
 
+  // STARS
+
+  const stars = calculateStars();
+
+  const oldStars = Number(levelStars[currentLevel] || 0);
+
+  if (stars > oldStars) {
+    levelStars[currentLevel] = stars;
+  }
+
+  // BEST TIME
+
+  const oldBest = Number(bestTimes[currentLevel] || 0);
+
+  if (oldBest === 0 || seconds < oldBest) {
+    bestTimes[currentLevel] = seconds;
+  }
+
+  // UNLOCK NEXT
+
+  if (currentLevel < 10 && unlockedLevel < currentLevel + 1) {
+    unlockedLevel = currentLevel + 1;
+  }
+
+  saveProgress();
+
+  updateLevelSelector();
+
+  bestTimeElement.textContent = `${bestTimes[currentLevel]}s`;
+
   setTimeout(function () {
-    modalIcon.textContent = "🏆";
+    modalIcon.textContent = currentLevel === 10 ? "👑" : "🏆";
 
-    modalTitle.textContent = "CHIẾN THẮNG!";
+    modalTitle.textContent =
+      currentLevel === 10 ? "FINAL BOSS HẠ GỤC!" : "CHIẾN THẮNG!";
 
-    modalMessage.textContent = `Bạn đã phá bãi mìn trong ${seconds} giây!`;
+    modalStars.textContent = "⭐".repeat(stars);
 
-    modalButton.textContent = "🎮 CHƠI LẠI";
+    modalStars.classList.remove("hidden");
+
+    modalStats.classList.remove("hidden");
+
+    resultTime.textContent = `${seconds}s`;
+
+    resultBest.textContent = `${bestTimes[currentLevel]}s`;
+
+    if (currentLevel < 10) {
+      modalMessage.textContent = `Màn ${currentLevel + 1} đã được mở khóa!`;
+
+      nextLevelButton.classList.remove("hidden");
+    } else {
+      modalMessage.textContent = "Bạn đã vượt qua toàn bộ Death Field!";
+
+      nextLevelButton.classList.add("hidden");
+    }
+
+    modalButton.textContent = "🔄 CHƠI LẠI";
 
     modal.classList.remove("hidden");
-  }, 300);
+  }, 350);
 }
 
-// ==========================================
-// BUTTON
-// ==========================================
+// ============================================================
+// LEVEL SELECTOR
+// ============================================================
+
+function updateLevelSelector() {
+  levelButtons.forEach(function (button) {
+    const levelNumber = Number(button.dataset.level);
+
+    const numberSpan = button.querySelector("span");
+
+    const small = button.querySelector("small");
+
+    button.classList.remove("active");
+
+    if (levelNumber > unlockedLevel) {
+      button.classList.add("locked");
+
+      numberSpan.textContent = "🔒";
+    } else {
+      button.classList.remove("locked");
+
+      if (levelNumber === 10) {
+        numberSpan.textContent = "☠️";
+      } else {
+        numberSpan.textContent = levelNumber;
+      }
+
+      const stars = Number(levelStars[levelNumber] || 0);
+
+      if (stars > 0) {
+        small.textContent = `${LEVELS[levelNumber - 1].name} ${"⭐".repeat(stars)}`;
+      } else {
+        small.textContent = LEVELS[levelNumber - 1].name;
+      }
+    }
+
+    if (levelNumber === currentLevel) {
+      button.classList.add("active");
+    }
+  });
+}
+
+// ============================================================
+// SELECT LEVEL
+// ============================================================
+
+function selectLevel(levelNumber) {
+  if (levelNumber < 1 || levelNumber > 10) {
+    return;
+  }
+
+  if (levelNumber > unlockedLevel) {
+    return;
+  }
+
+  currentLevel = levelNumber;
+
+  levelSelector.classList.add("hidden");
+
+  modal.classList.add("hidden");
+
+  createGame();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
+
+// ============================================================
+// SHOW / HIDE LEVEL MENU
+// ============================================================
+
+function toggleLevelSelector() {
+  levelSelector.classList.toggle("hidden");
+}
+
+function showLevelSelector() {
+  modal.classList.add("hidden");
+
+  levelSelector.classList.remove("hidden");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+}
+
+// ============================================================
+// BUTTON EVENTS
+// ============================================================
 
 restartButton.addEventListener("click", createGame);
 
 modalButton.addEventListener("click", createGame);
 
-// ==========================================
-// CHẶN MENU CHUỘT PHẢI TRÊN BOARD
-// ==========================================
+nextLevelButton.addEventListener("click", function () {
+  if (currentLevel < 10) {
+    currentLevel++;
+
+    createGame();
+  }
+});
+
+toggleLevelsButton.addEventListener("click", toggleLevelSelector);
+
+levelsButton.addEventListener("click", toggleLevelSelector);
+
+modalLevelsButton.addEventListener("click", showLevelSelector);
+
+levelButtons.forEach(function (button) {
+  button.addEventListener("click", function () {
+    const levelNumber = Number(button.dataset.level);
+
+    selectLevel(levelNumber);
+  });
+});
+
+// ============================================================
+// DISABLE CONTEXT MENU
+// ============================================================
 
 boardElement.addEventListener("contextmenu", function (event) {
   event.preventDefault();
 });
 
-// ==========================================
-// KHỞI ĐỘNG GAME
-// ==========================================
+// ============================================================
+// RESIZE
+//
+// Khi đổi kích thước cửa sổ,
+// tạo lại bàn nếu game CHƯA bắt đầu.
+//
+// Không reset giữa lúc đang chơi.
+// ============================================================
+
+window.addEventListener("resize", function () {
+  if (firstClick) {
+    createGame();
+  }
+});
+
+// ============================================================
+// START
+// ============================================================
+
+loadProgress();
+
+updateLevelSelector();
 
 createGame();

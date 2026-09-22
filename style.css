@@ -1,18 +1,44 @@
+/* =========================================================
+   MINESWEEPER: DEATH FIELD
+   CAMPAIGN UI
+========================================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --cell-size: 48px;
+
+  --bg-dark: #070b12;
+  --panel: #111827;
+  --panel-2: #0f172a;
+
+  --border: #334155;
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+
+  --blue: #2563eb;
+  --green: #22c55e;
+  --yellow: #facc15;
+  --red: #ef4444;
+}
+
 body {
   min-height: 100vh;
+
   background: radial-gradient(
     circle at top,
     #263454 0%,
     #111827 45%,
     #070b12 100%
   );
+
   color: white;
+
   font-family: Arial, Helvetica, sans-serif;
 
   display: flex;
@@ -22,19 +48,27 @@ body {
   padding: 35px 15px;
 }
 
-/* =========================
-   KHUNG GAME
-========================= */
+/* =========================================================
+   GAME CONTAINER
+========================================================= */
 
 .game-container {
   width: 100%;
-  max-width: 620px;
+
+  max-width: 1000px;
+
   text-align: center;
 }
 
+/* =========================================================
+   HEADER
+========================================================= */
+
 header h1 {
   font-size: 42px;
+
   letter-spacing: 3px;
+
   color: #f8fafc;
 
   text-shadow:
@@ -45,90 +79,298 @@ header h1 {
 .subtitle {
   margin-top: 5px;
 
-  color: #ef4444;
+  color: var(--red);
+
   font-weight: bold;
+
   letter-spacing: 8px;
+
   font-size: 14px;
 }
 
-/* =========================
-   THÔNG TIN GAME
-========================= */
+/* =========================================================
+   CAMPAIGN
+========================================================= */
 
-.game-info {
-  margin-top: 25px;
+.campaign {
+  max-width: 720px;
+
+  margin: 25px auto 0;
+
+  background: rgba(15, 23, 42, 0.88);
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  padding: 15px;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.campaign-title {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+
+  text-align: left;
+}
+
+.campaign-small {
+  color: var(--muted);
+
+  font-size: 11px;
+
+  letter-spacing: 3px;
+}
+
+.campaign-title h2 {
+  margin-top: 3px;
+
+  font-size: 17px;
+
+  letter-spacing: 1px;
+}
+
+/* =========================================================
+   LEVEL SELECTOR
+========================================================= */
+
+.level-selector {
+  margin-top: 15px;
 
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns: repeat(5, 1fr);
+
+  gap: 9px;
+}
+
+.level-selector.hidden {
+  display: none;
+}
+
+.level-btn {
+  min-height: 68px;
+
+  padding: 8px 5px;
+
+  border-radius: 10px;
+
+  border: 1px solid #334155;
+
+  background: #182235;
+
+  color: white;
+
+  cursor: pointer;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  transition:
+    transform 0.15s,
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.level-btn span {
+  font-size: 20px;
+
+  font-weight: 900;
+}
+
+.level-btn small {
+  color: #cbd5e1;
+
+  font-size: 10px;
+}
+
+.level-btn:hover:not(.locked) {
+  transform: translateY(-2px);
+
+  background: #26364f;
+
+  border-color: #60a5fa;
+}
+
+.level-btn.active {
+  background: #1d4ed8;
+
+  border-color: #60a5fa;
+
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.25);
+}
+
+.level-btn.locked {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+
+  filter: grayscale(0.5);
+}
+
+.level-btn.boss:not(.locked) {
+  background: linear-gradient(145deg, #7f1d1d, #450a0a);
+
+  border-color: #ef4444;
+}
+
+/* =========================================================
+   BUTTON NHỎ
+========================================================= */
+
+.small-btn {
+  padding: 9px 13px;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   GAME INFO
+========================================================= */
+
+.game-info {
+  max-width: 720px;
+
+  margin: 15px auto 0;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
 
   gap: 10px;
 }
 
 .info-box {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.88);
 
-  border: 1px solid #334155;
+  border: 1px solid var(--border);
+
   border-radius: 12px;
 
   padding: 12px 8px;
 
   display: flex;
+
   flex-direction: column;
+
   gap: 7px;
 
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .info-box span {
-  color: #94a3b8;
-  font-size: 13px;
+  color: var(--muted);
+
+  font-size: 12px;
 }
 
 .info-box strong {
-  color: #f8fafc;
-  font-size: 24px;
+  color: var(--text);
+
+  font-size: 23px;
 }
 
-/* =========================
-   LEVEL
-========================= */
+/* =========================================================
+   LEVEL HIỆN TẠI
+========================================================= */
 
 .level-info {
-  margin: 16px 0;
+  max-width: 720px;
+
+  margin: 15px auto;
 
   background: #111827;
 
-  border: 1px solid #334155;
-  border-radius: 10px;
+  border: 1px solid var(--border);
 
-  padding: 10px;
+  border-radius: 12px;
+
+  padding: 11px 15px;
 
   display: flex;
-  justify-content: center;
+
+  justify-content: space-between;
+
   align-items: center;
-  gap: 10px;
+
+  gap: 15px;
 }
 
-.level-info span:first-child {
-  color: #94a3b8;
-  font-size: 13px;
+.current-level {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.current-level span {
+  color: var(--muted);
+
+  font-size: 12px;
 }
 
 #level-number {
-  color: #facc15;
-  font-size: 20px;
+  color: var(--yellow);
+
+  font-size: 22px;
+}
+
+.level-name-area {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
 }
 
 #level-name {
-  color: #22c55e;
+  color: var(--green);
+
   font-size: 14px;
-  font-weight: bold;
+
   letter-spacing: 1px;
 }
 
-/* =========================
-   BÀN MINESWEEPER
-========================= */
+#level-difficulty {
+  font-size: 14px;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   BOARD WRAPPER
+
+   Màn lớn có thể cuộn ngang.
+   Ảnh ghép vẫn nằm trong #board.
+========================================================= */
+
+.board-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  overflow-y: hidden;
+
+  padding: 5px 5px 15px;
+
+  scrollbar-width: thin;
+}
 
 #board {
   margin: 0 auto;
@@ -140,6 +382,7 @@ header h1 {
   background: #020617;
 
   border: 5px solid #1e293b;
+
   border-radius: 12px;
 
   overflow: hidden;
@@ -149,47 +392,68 @@ header h1 {
     0 0 30px rgba(59, 130, 246, 0.08);
 }
 
-/* =========================
-   Ô
-========================= */
+/* =========================================================
+   CELL
+
+   Kích thước thật sẽ do JS đặt bằng --cell-size.
+========================================================= */
 
 .cell {
-  width: 48px;
-  height: 48px;
+  width: var(--cell-size);
+
+  height: var(--cell-size);
 
   border: 1px solid #334155;
 
   display: flex;
+
   justify-content: center;
+
   align-items: center;
 
-  font-size: 22px;
+  font-size: calc(var(--cell-size) * 0.46);
+
   font-weight: 900;
 
   cursor: pointer;
 
   user-select: none;
 
+  background-repeat: no-repeat;
+
   transition:
     transform 0.08s,
-    background 0.15s;
+    filter 0.15s,
+    background-color 0.15s;
 }
 
+/* ẢNH VẪN HIỆN KHI CHƯA MỞ */
+
 .cell:hover:not(.opened) {
-  background: #64748b;
   transform: scale(0.94);
+
+  filter: brightness(1.2);
+
+  z-index: 2;
 }
+
+/* MỞ Ô -> BỎ MẢNH ẢNH */
 
 .cell.opened {
   background-image: none !important;
+
   background-color: #dce3eb;
+
   border-color: #b8c1cc;
+
   cursor: default;
+
+  filter: none;
 }
 
-/* =========================
-   SỐ MINESWEEPER
-========================= */
+/* =========================================================
+   NUMBER COLORS
+========================================================= */
 
 .cell[data-number="1"] {
   color: #2563eb;
@@ -223,20 +487,26 @@ header h1 {
   color: #475569;
 }
 
-/* =========================
-   CỜ
-========================= */
+/* =========================================================
+   FLAG
+
+   Không xóa ảnh nền.
+   Chỉ phủ nhẹ để vẫn thấy mảnh ảnh.
+========================================================= */
 
 .cell.flagged {
-  background: linear-gradient(145deg, #4b5563, #273244);
+  box-shadow: inset 0 0 0 100px rgba(15, 23, 42, 0.3);
 }
 
-/* =========================
-   MÌN
-========================= */
+/* =========================================================
+   MINE
+========================================================= */
 
 .cell.mine {
-  background: #ef4444;
+  background-image: none !important;
+
+  background-color: #ef4444;
+
   color: white;
 
   animation: mineExplosion 0.35s ease;
@@ -248,7 +518,7 @@ header h1 {
   }
 
   60% {
-    transform: scale(1.25);
+    transform: scale(1.2);
   }
 
   100% {
@@ -256,33 +526,47 @@ header h1 {
   }
 }
 
-/* =========================
-   NÚT
-========================= */
+/* =========================================================
+   CONTROL BUTTONS
+========================================================= */
 
 .controls {
-  margin-top: 20px;
+  margin-top: 15px;
+
+  display: flex;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
 }
 
 button {
   border: none;
+
   border-radius: 10px;
 
-  padding: 13px 25px;
+  padding: 13px 22px;
 
   background: #2563eb;
+
   color: white;
 
-  font-size: 14px;
+  font-size: 13px;
+
   font-weight: bold;
 
   cursor: pointer;
 
-  transition: 0.2s;
+  transition:
+    transform 0.15s,
+    background 0.15s;
 }
 
 button:hover {
   background: #3b82f6;
+
   transform: translateY(-2px);
 }
 
@@ -290,36 +574,56 @@ button:active {
   transform: translateY(0);
 }
 
-/* =========================
-   HƯỚNG DẪN
-========================= */
+.secondary-btn {
+  background: #334155;
+}
+
+.secondary-btn:hover {
+  background: #475569;
+}
+
+.next-level-btn {
+  background: #16a34a;
+}
+
+.next-level-btn:hover {
+  background: #22c55e;
+}
+
+/* =========================================================
+   INSTRUCTIONS
+========================================================= */
 
 .instructions {
   margin-top: 18px;
 
-  color: #94a3b8;
+  color: var(--muted);
 
   font-size: 13px;
 
   line-height: 1.8;
 }
 
-/* =========================
-   MODAL THẮNG / THUA
-========================= */
+/* =========================================================
+   MODAL
+========================================================= */
 
 .modal {
   position: fixed;
 
   inset: 0;
 
-  background: rgba(2, 6, 23, 0.82);
+  background: rgba(2, 6, 23, 0.86);
 
   backdrop-filter: blur(7px);
 
   display: flex;
+
   justify-content: center;
+
   align-items: center;
+
+  padding: 20px;
 
   z-index: 100;
 }
@@ -329,13 +633,18 @@ button:active {
 }
 
 .modal-content {
-  width: min(90%, 400px);
+  width: min(92%, 440px);
 
-  padding: 35px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 32px;
 
   background: #111827;
 
   border: 1px solid #475569;
+
   border-radius: 18px;
 
   text-align: center;
@@ -347,37 +656,117 @@ button:active {
 
 @keyframes modalShow {
   from {
-    transform: scale(0.75);
+    transform: scale(0.78);
+
     opacity: 0;
   }
 
   to {
     transform: scale(1);
+
     opacity: 1;
   }
 }
 
 #modal-icon {
-  font-size: 65px;
+  font-size: 60px;
 }
 
 #modal-title {
+  margin-top: 8px;
+
+  font-size: 32px;
+}
+
+.modal-stars {
   margin-top: 10px;
 
-  font-size: 34px;
+  color: #facc15;
+
+  font-size: 28px;
+
+  letter-spacing: 3px;
+}
+
+.modal-stars.hidden {
+  display: none;
 }
 
 #modal-message {
-  margin: 15px 0 22px;
+  margin: 15px 0;
 
   color: #cbd5e1;
+
+  line-height: 1.6;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* =========================================================
+   RESULT STATS
+========================================================= */
 
-@media (max-width: 550px) {
+.modal-stats {
+  margin: 15px 0 20px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+}
+
+.modal-stats.hidden {
+  display: none;
+}
+
+.modal-stats div {
+  padding: 12px;
+
+  background: #0f172a;
+
+  border: 1px solid #334155;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.modal-stats span {
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+.modal-stats strong {
+  font-size: 18px;
+}
+
+.modal-buttons {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+/* =========================================================
+   GENERIC HIDDEN
+
+   Đặt cuối để thắng các display khác.
+========================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
   body {
     padding: 20px 8px;
   }
@@ -390,14 +779,69 @@ button:active {
     letter-spacing: 5px;
   }
 
-  .cell {
-    width: 38px;
-    height: 38px;
+  .campaign {
+    margin-top: 18px;
+  }
 
-    font-size: 18px;
+  .campaign-title {
+    align-items: flex-end;
+  }
+
+  .campaign-title h2 {
+    font-size: 15px;
+  }
+
+  .level-selector {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .game-info {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .info-box strong {
     font-size: 19px;
+  }
+
+  .level-info {
+    flex-direction: column;
+
+    gap: 7px;
+  }
+
+  .level-name-area {
+    flex-direction: column;
+
+    gap: 4px;
+  }
+
+  .modal-content {
+    padding: 25px 18px;
+  }
+}
+
+/* =========================================================
+   ĐIỆN THOẠI NHỎ
+========================================================= */
+
+@media (max-width: 400px) {
+  header h1 {
+    font-size: 25px;
+  }
+
+  .campaign-title {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    text-align: center;
+  }
+
+  .small-btn {
+    width: 100%;
+  }
+
+  .modal-stats {
+    grid-template-columns: 1fr;
   }
 }

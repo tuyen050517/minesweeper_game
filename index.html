@@ -2,6 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Minesweeper: Death Field</title>
@@ -11,57 +12,210 @@
 
   <body>
     <div class="game-container">
+      <!-- =========================
+             HEADER
+        ========================== -->
+
       <header>
         <h1>💣 MINESWEEPER</h1>
+
         <p class="subtitle">DEATH FIELD</p>
       </header>
 
+      <!-- =========================
+             CAMPAIGN
+        ========================== -->
+
+      <section class="campaign">
+        <div class="campaign-title">
+          <div>
+            <span class="campaign-small"> CAMPAIGN </span>
+
+            <h2>☠️ DEATH FIELD</h2>
+          </div>
+
+          <button id="toggle-levels-btn" class="small-btn">🎮 CHỌN MÀN</button>
+        </div>
+
+        <!-- DANH SÁCH 10 LEVEL -->
+
+        <div id="level-selector" class="level-selector hidden">
+          <button class="level-btn active" data-level="1">
+            <span>1</span>
+            <small>Tân Binh</small>
+          </button>
+
+          <button class="level-btn locked" data-level="2">
+            <span>🔒</span>
+            <small>Bãi Mìn</small>
+          </button>
+
+          <button class="level-btn locked" data-level="3">
+            <span>🔒</span>
+            <small>Nguy Hiểm</small>
+          </button>
+
+          <button class="level-btn locked" data-level="4">
+            <span>🔒</span>
+            <small>Mê Cung</small>
+          </button>
+
+          <button class="level-btn locked" data-level="5">
+            <span>🔒</span>
+            <small>Ác Mộng</small>
+          </button>
+
+          <button class="level-btn locked" data-level="6">
+            <span>🔒</span>
+            <small>Tử Địa</small>
+          </button>
+
+          <button class="level-btn locked" data-level="7">
+            <span>🔒</span>
+            <small>Địa Ngục</small>
+          </button>
+
+          <button class="level-btn locked" data-level="8">
+            <span>🔒</span>
+            <small>Tuyệt Vọng</small>
+          </button>
+
+          <button class="level-btn locked" data-level="9">
+            <span>🔒</span>
+            <small>Death Field</small>
+          </button>
+
+          <button class="level-btn locked boss" data-level="10">
+            <span>☠️</span>
+            <small>FINAL BOSS</small>
+          </button>
+        </div>
+      </section>
+
+      <!-- =========================
+             THÔNG TIN GAME
+        ========================== -->
+
       <div class="game-info">
         <div class="info-box">
-          <span>💣 Mìn</span>
-          <strong id="mine-count">10</strong>
+          <span> 💣 Mìn </span>
+
+          <strong id="mine-count"> 10 </strong>
         </div>
 
         <div class="info-box">
-          <span>🚩 Cờ</span>
-          <strong id="flag-count">0</strong>
+          <span> 🚩 Cờ </span>
+
+          <strong id="flag-count"> 0 </strong>
         </div>
 
         <div class="info-box">
-          <span>⏱ Thời gian</span>
-          <strong id="timer">0</strong>
+          <span> ⏱ Thời gian </span>
+
+          <strong id="timer"> 0 </strong>
+        </div>
+
+        <div class="info-box">
+          <span> 🏆 Kỷ lục </span>
+
+          <strong id="best-time"> -- </strong>
         </div>
       </div>
+
+      <!-- =========================
+             LEVEL HIỆN TẠI
+        ========================== -->
 
       <div class="level-info">
-        <span>MÀN</span>
-        <strong id="level-number">1</strong>
-        <span id="level-name">TÂN BINH</span>
+        <div class="current-level">
+          <span> MÀN </span>
+
+          <strong id="level-number"> 1 </strong>
+        </div>
+
+        <div class="level-name-area">
+          <strong id="level-name"> TÂN BINH </strong>
+
+          <span id="level-difficulty"> ⭐ </span>
+        </div>
       </div>
 
-      <!-- Bàn Minesweeper -->
-      <div id="board"></div>
+      <!-- =========================
+             ẢNH / BOARD
+        ========================== -->
+
+      <div class="board-wrapper">
+        <div id="board"></div>
+      </div>
+
+      <!-- =========================
+             CONTROL
+        ========================== -->
 
       <div class="controls">
         <button id="restart-btn">🔄 CHƠI LẠI</button>
+
+        <button id="levels-btn" class="secondary-btn">🎮 CHỌN MÀN</button>
       </div>
 
+      <!-- =========================
+             HƯỚNG DẪN
+        ========================== -->
+
       <div class="instructions">
-        <p>🖱️ Chuột trái: mở ô</p>
+        <p>🖱️ Chuột trái: mở mảnh ảnh</p>
+
         <p>🚩 Chuột phải: cắm / gỡ cờ</p>
+
+        <p>🏆 Vượt màn để mở khóa màn tiếp theo</p>
       </div>
     </div>
 
-    <!-- Màn hình thắng / thua -->
+    <!-- =========================
+         MODAL THẮNG / THUA
+    ========================== -->
+
     <div id="game-modal" class="modal hidden">
       <div class="modal-content">
         <div id="modal-icon">💥</div>
 
         <h2 id="modal-title">BOOM!</h2>
 
+        <div id="modal-stars" class="modal-stars hidden">⭐⭐⭐</div>
+
         <p id="modal-message">Bạn đã giẫm phải mìn!</p>
 
-        <button id="modal-button">THỬ LẠI</button>
+        <div id="modal-stats" class="modal-stats hidden">
+          <div>
+            <span> ⏱ Thời gian </span>
+
+            <strong id="result-time"> 0s </strong>
+          </div>
+
+          <div>
+            <span> 🏆 Kỷ lục </span>
+
+            <strong id="result-best"> -- </strong>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <!-- THUA: THỬ LẠI
+                     MÀN 10: CHƠI LẠI -->
+
+          <button id="modal-button">🔄 THỬ LẠI</button>
+
+          <!-- CHỈ HIỆN KHI THẮNG
+                     MÀN 1 → 9 -->
+
+          <button id="next-level-btn" class="next-level-btn hidden">
+            MÀN TIẾP THEO ➜
+          </button>
+
+          <button id="modal-levels-btn" class="secondary-btn">
+            🎮 CHỌN MÀN
+          </button>
+        </div>
       </div>
     </div>
 
